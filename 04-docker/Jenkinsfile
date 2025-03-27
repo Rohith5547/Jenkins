@@ -2,51 +2,65 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'sanjeevkt720/jenkins-flask-app'
+        IMAGE_NAME = 'shoshoavi/jenkins-flask-app'
         IMAGE_TAG = "${IMAGE_NAME}:${env.GIT_COMMIT}"
-        
+        VENV_DIR = 'jenkins-python-dir/venv'
     }
 
-    
     stages {
 
-        stage('Setup') {
+        stage('Setup Virtual Env') {
             steps {
-                sh "pip install -r requirements.txt"
+                dir('04-docker') {
+                    sh '''
+                        python3 -m venv ${VENV_DIR}
+                        . ${VENV_DIR}/bin/activate
+                        pip install --upgrade pip
+                        pip install -r requirements.txt
+                    '''
+                }
             }
         }
+
         stage('Test') {
             steps {
-                sh "pytest"
+                dir('04-docker') {
+                    sh '''
+                        . ${VENV_DIR}/bin/activate
+                        pytest
+                    '''
+                }
             }
         }
 
-        stage('Login to docker hub') {
+        stage('Login to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                sh 'echo ${PASSWORD} | docker login -u ${USERNAME} --password-stdin'}
-                echo 'Login successfully'
+                dir('04-docker') {
+                    withCredentials([usernamePassword(credentialsId: 'docker-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        sh 'echo ${PASSWORD} | docker login -u ${USERNAME} --password-stdin'
+                        echo 'Login successfully'
+                    }
+                }
             }
         }
 
-        stage('Build Docker Image')
-        {
-            steps
-            {
-                sh 'docker build -t ${IMAGE_TAG} .'
-                echo "Docker image build successfully"
-                sh 'docker image ls'
-                
+        stage('Build Docker Image') {
+            steps {
+                dir('04-docker') {
+                    sh 'docker build -t ${IMAGE_TAG} .'
+                    echo "Docker image built successfully"
+                    sh 'docker image ls'
+                }
             }
         }
 
-        stage('Push Docker Image')
-        {
-            steps
-            {
-                sh 'docker push ${IMAGE_TAG}'
-                echo "Docker image push successfully"
+        stage('Push Docker Image') {
+            steps {
+                dir('04-docker') {
+                    sh 'docker push ${IMAGE_TAG}'
+                    echo "Docker image pushed successfully"
+                }
             }
-        }      
+        }
     }
 }
