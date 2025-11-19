@@ -1,0 +1,43 @@
+// Declarative.
+pipeline {
+  agent any
+
+  options {
+    skipDefaultCheckout()
+  }
+
+  stages {
+    stage('Code checkout') {
+      steps {
+        checkout scm
+        sh ' ls -ltra '
+      }
+    }
+
+    stage('Python version') {
+      steps {
+        sh ' python --version '
+      }
+    }
+
+    stage('Setup') {
+      steps {
+        dir('01-jenkins-basics') {
+          sh '''
+            python -m venv venv
+            ./venv/bin/python -m pip install --upgrade pip
+            ./venv/bin/python -m pip install -r requirements.txt
+          '''
+        }
+      }
+    }
+
+    stage('Unit testing') {
+      steps {
+        dir('01-jenkins-basics') {
+          sh ' ./venv/bin/python -m pytest -vvv '
+        }
+      }
+    }
+  }
+}
