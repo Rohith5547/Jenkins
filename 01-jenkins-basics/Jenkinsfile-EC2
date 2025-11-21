@@ -52,7 +52,8 @@ pipeline {
       steps {
         dir('01-jenkins-basics') {
           sh """
-            zip -r ${APP_ZIP} app.py requirements.txt deploy.sh templates/
+            rm -f ${APP_ZIP}
+            zip -r ${APP_ZIP} app.py requirements.txt deploy.sh templates/ -x ${APP_ZIP}
             ls -ltra
           """
         }
