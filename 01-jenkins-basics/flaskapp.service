@@ -1,0 +1,30 @@
+# This is a systemd unit file.
+# Goes under /etc/systemd/system directory.
+# This is specific for Amazon Linux which is based on Fedora/CentOS distros.
+# systemd: init system & service manager for Linux. The first process that starts on boot.
+
+# Unit section:
+# Unit: a resource that systemd knows how to manage & control.
+# The fundamental building block of the systemd init system.
+[Unit]
+Description="Flask App."
+# Since this is a web app, start it after the network has been initialized:
+After=network.target
+
+[Service]
+# The user account under which our service will run:
+User=ec2-user
+# These are the default user/group for the Amazon Linux AMI.
+Group=ec2-user
+WorkingDirectory=/home/ec2-user/App/
+# Ensure the correct Python interpreter & dependencies are used:
+Environment="PATH=/home/ec2-user/App/venv/bin/"
+# Command to start the service:
+ExecStart=/home/ec2-user/App/venv/bin/python3 /home/ec2-user/App/app.py
+
+[Install]
+# The target our service should be started under.
+# Target: unit that groups other units to represent a checkpoint in the boot process.
+# Multi-user: standard target for running multiple users in a non-graphical env,
+# common for most servers.
+WantedBy=multi-user.target

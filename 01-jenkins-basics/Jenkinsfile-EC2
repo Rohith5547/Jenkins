@@ -1,0 +1,81 @@
+// Declarative.
+pipeline {
+  agent any
+
+  environment {
+    EC2_SERVER = 'ec2-54-190-49-10.us-west-2.compute.amazonaws.com'
+    APP_ZIP = 'myapp.zip'
+  }
+
+  options {
+    skipDefaultCheckout()
+  }
+
+  stages {
+    stage('Code checkout') {
+      steps {
+        checkout scm
+        sh ' ls -ltra '
+      }
+    }
+
+    stage('Python version') {
+      steps {
+        sh ' python --version '
+      }
+    }
+
+    stage('Setup') {
+      steps {
+        dir('01-jenkins-basics') {
+          sh '''
+            echo 'Create Python virtual environment. '
+            python -m venv venv
+            echo 'Upgrade pip module. '
+            ./venv/bin/python -m pip install --upgrade pip
+            echo 'Install project dependencies. '
+            ./venv/bin/python -m pip install -r requirements.txt
+          '''
+        }
+      }
+    }
+
+    stage('Unit testing') {
+      steps {
+        dir('01-jenkins-basics') {
+          sh ' ./venv/bin/python -m pytest -vvv '
+        }
+      }
+    }
+
+    stage('Package code') {
+      steps {
+        dir('01-jenkins-basics') {
+          sh """
+            zip -r ${APP_ZIP} ./* -x '*.git*'
+            ls -ltra
+          """
+        }
+      }
+    }
+
+    stage('Deploy to EC2') {
+      steps {
+        withCredentials([
+          sshUserPrivateKey(
+            credentialsId: 'AWS-EC2-SSH-private-key',
+            keyFileVariable: 'SSH_KEY',
+            usernameVariable: 'user')])
+        {
+          sh """
+            scp -i ${SSH_KEY} -o StrictHostKeyChecking=no ${APP_ZIP} \
+              ${user}@${EC2_SERVER}:/home/ec2-user/
+            ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no \
+              ${user}@${EC2_SERVER} \
+              deploy.sh ${APP_ZIP}
+          """
+        }
+      }
+    }
+  }
+}
