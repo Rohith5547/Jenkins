@@ -73,7 +73,8 @@ pipeline {
                 ${user}@${EC2_SERVER}:/home/ec2-user/
               ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no \
                 ${user}@${EC2_SERVER} \
-                /home/ec2-user/App/deploy.sh ${APP_ZIP}
+                ' bash -c "unzip -o /home/ec2-user/${APP_ZIP} -d /home/ec2-user/App/ && \
+                /home/ec2-user/App/deploy.sh" '
             """
           }
         }
