@@ -5,6 +5,9 @@ pipeline {
   environment {
     EC2_SERVER = 'ec2-54-190-49-10.us-west-2.compute.amazonaws.com'
     APP_ZIP = 'myapp.zip'
+    HOME = '/home/ec2-user'
+    APP_FOLDER = 'App'
+    DEPLOY_SCRIPT = 'deploy.sh'
   }
 
   options {
@@ -53,7 +56,7 @@ pipeline {
         dir('01-jenkins-basics') {
           sh """
             rm -f ${APP_ZIP}
-            zip -r ${APP_ZIP} app.py requirements.txt deploy.sh templates/ -x ${APP_ZIP}
+            zip -r ${APP_ZIP} app.py requirements.txt ${DEPLOY_SCRIPT} templates/
             ls -ltra
           """
         }
@@ -71,12 +74,13 @@ pipeline {
           {
             sh """
               scp -i ${SSH_KEY} -o StrictHostKeyChecking=no ${APP_ZIP} \
-                ${user}@${EC2_SERVER}:/home/ec2-user/
+                ${user}@${EC2_SERVER}:${HOME}/
               ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no \
-                ${user}@${EC2_SERVER} \
-                ' bash -c "unzip -o /home/ec2-user/${APP_ZIP} -d /home/ec2-user/App/ && \
-                  chmod u+x /home/ec2-user/App/deploy.sh && \
-                  /home/ec2-user/App/deploy.sh" '
+                ${user}@${EC2_SERVER} ' bash -c \
+                  "rm -f ${HOME}/${APP_ZIP} && \
+                  unzip -o ${HOME}/${APP_ZIP} -d ${HOME}/${APP_FOLDER}/ && \
+                  chmod u+x ${HOME}/${APP_FOLDER}/${DEPLOY_SCRIPT} && \
+                  ./${HOME}/${APP_FOLDER}/${DEPLOY_SCRIPT}" '
             """
           }
         }
