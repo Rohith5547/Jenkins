@@ -77,10 +77,10 @@ pipeline {
                 ${user}@${EC2_SERVER}:${HOME}/
               ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no \
                 ${user}@${EC2_SERVER} ' bash -c \
-                  "rm -f ${HOME}/${APP_ZIP} && \
-                  unzip -o ${HOME}/${APP_ZIP} -d ${HOME}/${APP_FOLDER}/ && \
+                  "unzip -o ${HOME}/${APP_ZIP} -d ${HOME}/${APP_FOLDER}/ && \
                   chmod u+x ${HOME}/${APP_FOLDER}/${DEPLOY_SCRIPT} && \
-                  ${HOME}/${APP_FOLDER}/${DEPLOY_SCRIPT}" '
+                  ${HOME}/${APP_FOLDER}/${DEPLOY_SCRIPT}" && \
+                  rm -f ${HOME}/${APP_ZIP} '
             """
           }
         }
