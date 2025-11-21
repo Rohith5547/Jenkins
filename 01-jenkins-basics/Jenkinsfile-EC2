@@ -61,19 +61,21 @@ pipeline {
 
     stage('Deploy to EC2') {
       steps {
-        withCredentials([
-          sshUserPrivateKey(
-            credentialsId: 'AWS-EC2-SSH-private-key',
-            keyFileVariable: 'SSH_KEY',
-            usernameVariable: 'user')])
-        {
-          sh """
-            scp -i ${SSH_KEY} -o StrictHostKeyChecking=no ${APP_ZIP} \
-              ${user}@${EC2_SERVER}:/home/ec2-user/
-            ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no \
-              ${user}@${EC2_SERVER} \
-              deploy.sh ${APP_ZIP}
-          """
+        dir('01-jenkins-basics') {
+          withCredentials([
+            sshUserPrivateKey(
+              credentialsId: 'AWS-EC2-SSH-private-key',
+              keyFileVariable: 'SSH_KEY',
+              usernameVariable: 'user')])
+          {
+            sh """
+              scp -i ${SSH_KEY} -o StrictHostKeyChecking=no ${APP_ZIP} \
+                ${user}@${EC2_SERVER}:/home/ec2-user/
+              ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no \
+                ${user}@${EC2_SERVER} \
+                deploy.sh ${APP_ZIP}
+            """
+          }
         }
       }
     }
