@@ -5,9 +5,10 @@ pipeline {
   environment {
     EC2_SERVER = 'ec2-54-190-49-10.us-west-2.compute.amazonaws.com'
     APP_ZIP = 'myapp.zip'
-    HOME = '/home/ec2-user'
+    EC2_HOME = '/home/ec2-user'
     APP_FOLDER = 'App'
     DEPLOY_SCRIPT = 'deploy.sh'
+    PORT = '5000'
   }
 
   options {
@@ -74,15 +75,16 @@ pipeline {
           {
             sh """
               scp -i ${SSH_KEY} -o StrictHostKeyChecking=no ${APP_ZIP} \
-                ${user}@${EC2_SERVER}:${HOME}/
+                ${user}@${EC2_SERVER}:${EC2_HOME}/
               ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no \
                 ${user}@${EC2_SERVER} ' bash -c \
-                  "unzip -o ${HOME}/${APP_ZIP} -d ${HOME}/${APP_FOLDER}/ && \
-                  chmod u+x ${HOME}/${APP_FOLDER}/${DEPLOY_SCRIPT} && \
-                  ${HOME}/${APP_FOLDER}/${DEPLOY_SCRIPT}" && \
-                  rm -f ${HOME}/${APP_ZIP} '
+                  "unzip -o ${EC2_HOME}/${APP_ZIP} -d ${EC2_HOME}/${APP_FOLDER}/ && \
+                  chmod u+x ${EC2_HOME}/${APP_FOLDER}/${DEPLOY_SCRIPT} && \
+                  ${EC2_HOME}/${APP_FOLDER}/${DEPLOY_SCRIPT}" && \
+                  rm -f ${EC2_HOME}/${APP_ZIP} '
             """
           }
+          echo "To see the app running visit: http://${EC2_SERVER}:${PORT}"
         }
       }
     }
