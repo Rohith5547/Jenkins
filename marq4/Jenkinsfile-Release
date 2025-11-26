@@ -51,7 +51,7 @@ pipeline {
       stages {
         stage('Dockerize') {
           steps {
-            withCredentials([usernamePassword(credentialsId: 'docker-creds',
+            withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
               usernameVariable: 'USER', passwordVariable: 'TOKEN')])
             {
               sh """
