@@ -43,10 +43,10 @@ pipeline {
 
         stage('Deploy to Ubuntu 24 LTS') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'ubuntu_private_sshkey', usernameVariable: 'username')]) {
+                withCredentials([sshUserPrivateKey(credentialsId: 'ubuntu_private_sshkey', keyFileVariable: 'MY_SSH_KEY', usernameVariable: 'username')]) {
                     sh '''
-                    scp -i $ubuntu_private_sshkey -o StrictHostKeyChecking=no myapp.zip  ${username}@${SERVER_IP}:/home/rohith/
-                    ssh -i $ubuntu_private_sshkey -o StrictHostKeyChecking=no ${username}@${SERVER_IP} << EOF
+                    scp -i $MY_SSH_KEY -o StrictHostKeyChecking=no myapp.zip  ${username}@${SERVER_IP}:/home/rohith/
+                    ssh -i $MY_SSH_KEY -o StrictHostKeyChecking=no ${username}@${SERVER_IP} << EOF
                         unzip -o /home/rohith/myapp.zip -d /home/rohith/app/
                         source app/venv/bin/activate
                         cd /home/rohith/app/
