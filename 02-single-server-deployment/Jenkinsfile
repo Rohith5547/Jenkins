@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SERVER_IP = credentials('prod-server-ip')
+        SERVER_IP = credentials('ubuntu_24LTS_ip')
     }
     stages {
         stage('Setup') {
@@ -23,15 +23,15 @@ pipeline {
             }
         }
 
-        stage('Deploy to Prod') {
+        stage('Deploy to Ubuntu 24 LTS') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'MY_SSH_KEY', usernameVariable: 'username')]) {
+                withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'ubuntu_private_sshkey', usernameVariable: 'username')]) {
                     sh '''
-                    scp -i $MY_SSH_KEY -o StrictHostKeyChecking=no myapp.zip  ${username}@${SERVER_IP}:/home/ec2-user/
-                    ssh -i $MY_SSH_KEY -o StrictHostKeyChecking=no ${username}@${SERVER_IP} << EOF
-                        unzip -o /home/ec2-user/myapp.zip -d /home/ec2-user/app/
+                    scp -i $ubuntu_private_sshkey -o StrictHostKeyChecking=no myapp.zip  ${username}@${SERVER_IP}:/home/rohith/
+                    ssh -i $ubuntu_private_sshkey -o StrictHostKeyChecking=no ${username}@${SERVER_IP} << EOF
+                        unzip -o /home/rohith/myapp.zip -d /home/rohith/app/
                         source app/venv/bin/activate
-                        cd /home/ec2-user/app/
+                        cd /home/rohith/app/
                         pip install -r requirements.txt
                         sudo systemctl restart flaskapp.service
 EOF
