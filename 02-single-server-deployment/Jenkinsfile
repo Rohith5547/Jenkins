@@ -21,6 +21,7 @@ pipeline {
             steps {
 
                 sh '''
+                    cd 02-single-server-deployment
                     venv/bin/python -m pytest
                 '''
             }
