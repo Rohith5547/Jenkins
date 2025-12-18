@@ -19,15 +19,25 @@ pipeline {
         }
         stage('Test') {
             steps {
-                sh "pytest"
 
+                sh '''
+                    . venv/bin/activate
+                    pytest
+                '''
             }
         }
 
         stage('Package code') {
             steps {
-                sh "zip -r myapp.zip ./* -x '*.git*'"
-                sh "ls -lart"
+                // sh "zip -r myapp.zip ./* -x '*.git*' "
+                // sh "ls -lart"
+                sh '''
+                    zip -r myapp.zip . \
+                        -x "venv/*" \
+                        -x ".git/*" \
+                        -x "__pycache__/*"
+                    ls -lh myapp.zip
+                '''
             }
         }
 
