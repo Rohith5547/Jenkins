@@ -53,6 +53,9 @@ pipeline {
                     sh '''
                         ssh -i $MY_SSH_KEY -o StrictHostKeyChecking=no \
                         ${username}@${SERVER_IP} "echo SSH_CONNECTION_OK"
+
+                        scp -i $MY_SSH_KEY -o StrictHostKeyChecking=no \
+                        myapp.zip ${username}@${SERVER_IP}:/home/rohith/
                     '''
                 }
             }
