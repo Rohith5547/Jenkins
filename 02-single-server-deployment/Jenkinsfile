@@ -53,22 +53,15 @@ pipeline {
                         ssh -i $MY_SSH_KEY -o StrictHostKeyChecking=no \
                         ${username}@${SERVER_IP}
                         scp -i $MY_SSH_KEY -o StrictHostKeyChecking=no \
-                        myapp.zip ${username}@${SERVER_IP}:/home/rohith/ << 'EOF'
-
-                        set -e
-
-                        cd /home/rohith
-
-                        unzip -o myapp.zip -d app
-
-                        cd app
-
-                        /home/rohith/app/venv/bin/pip install -r requirements.txt
-
-                        sudo systemctl restart flaskapp.service
-
-                        echo "DEPLOYMENT_SUCCESS"
-EOF
+                        myapp.zip ${username}@${SERVER_IP}:/home/rohith/ "
+                            set -e &&
+                            cd /home/rohith &&
+                            unzip -o myapp.zip -d app &&
+                            cd app &&
+                            /home/rohith/app/venv/bin/pip install -r requirements.txt &&
+                            sudo systemctl restart flaskapp.service &&
+                            echo DEPLOYMENT_SUCCESS
+                         "    
                     '''
                 }
             }
