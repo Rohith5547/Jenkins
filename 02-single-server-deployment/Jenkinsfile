@@ -9,6 +9,7 @@ pipeline {
             steps {
                 sh '''
                     echo $SERVER_IP
+                    cd 02-single-server-deployment
                     pip install -r requirements.txt
                 '''
             }
