@@ -25,7 +25,23 @@ pipeline {
                     venv/bin/python -m pytest
                 '''
             }
-        }        
+        }  
+
+        stage('Package code') {
+            steps {
+                sh '''
+                    cd 02-single-server-deployment
+
+                    zip -r myapp.zip . \
+                        -x "venv/*" \
+                        -x ".git/*" \
+                        -x "__pycache__/*" \
+                        -x ".pytest_cache/*"
+
+                    ls -lh myapp.zip
+                '''
+            }
+        }      
            
     }
 }
