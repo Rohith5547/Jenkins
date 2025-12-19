@@ -46,7 +46,7 @@ pipeline {
         stage('Deploy - Test SSH') {
             steps {
                 withCredentials([sshUserPrivateKey(
-                    credentialsId: 'ssh-key',
+                    credentialsId: 'ubuntu_private_sshkey',
                     keyFileVariable: 'MY_SSH_KEY',
                     usernameVariable: 'username'
                 )]) {
