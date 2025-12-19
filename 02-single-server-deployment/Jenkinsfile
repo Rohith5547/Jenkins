@@ -15,6 +15,15 @@ pipeline {
                     venv/bin/python -m pip install -r requirements.txt
                 '''
             }
+
+        stage('Testing') {
+            steps {
+                sh '''
+                    cd 02-single-server-deployment
+
+                    venv/bin/python -m pytest
+                '''
+            }
         }        
            
     }
