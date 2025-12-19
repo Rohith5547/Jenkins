@@ -42,8 +42,7 @@ pipeline {
                 '''
             }
         }
-
-        stage('Deploy - Test SSH') {
+        stage('Deploy - Remote Install & Restart') {
             steps {
                 withCredentials([sshUserPrivateKey(
                     credentialsId: 'ubuntu_private_sshkey',
@@ -52,8 +51,7 @@ pipeline {
                 )]) {
                     sh '''
                         ssh -i $MY_SSH_KEY -o StrictHostKeyChecking=no \
-                        ${username}@${SERVER_IP} "echo SSH_CONNECTION_OK"
-
+                        ${username}@${SERVER_IP}
                         scp -i $MY_SSH_KEY -o StrictHostKeyChecking=no \
                         myapp.zip ${username}@${SERVER_IP}:/home/rohith/ << 'EOF'
 
@@ -71,10 +69,10 @@ pipeline {
 
                         echo "DEPLOYMENT_SUCCESS"
 EOF
-                '''
+                    '''
                 }
             }
-        }      
+        }    
            
     }
 }
