@@ -41,6 +41,21 @@ pipeline {
                     ls -lh myapp.zip
                 '''
             }
+        }
+
+        stage('Deploy - Test SSH') {
+            steps {
+                withCredentials([sshUserPrivateKey(
+                    credentialsId: 'ssh-key',
+                    keyFileVariable: 'MY_SSH_KEY',
+                    usernameVariable: 'username'
+                )]) {
+                    sh '''
+                        ssh -i $MY_SSH_KEY -o StrictHostKeyChecking=no \
+                        ${username}@${SERVER_IP} "echo SSH_CONNECTION_OK"
+                    '''
+                }
+            }
         }      
            
     }
