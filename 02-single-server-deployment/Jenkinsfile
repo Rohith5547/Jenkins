@@ -8,60 +8,11 @@ pipeline {
         stage('Setup') {
             steps {
                 sh '''
-                    cd 02-single-server-deployment
-                    python3 -m venv venv
-                    . venv/bin/activate
-                    pip install --upgrade pip
-                    
+                    echo $SERVER_IP
                     pip3 install -r requirements.txt
                 '''
             }
-        }
-        stage('Test') {
-            steps {
-
-                sh '''
-                    cd 02-single-server-deployment
-                    venv/bin/python -m pytest
-                '''
-            }
-        }
-
-        stage('Package code') {
-            steps {
-                // sh "zip -r myapp.zip ./* -x '*.git*' "
-                // sh "ls -lart"
-                sh '''
-                    cd 02-single-server-deployment
-                    zip -r myapp.zip . \
-                        -x "venv/*" \
-                        -x ".git/*" \
-                        -x "__pycache__/*"
-                    ls -lh myapp.zip
-                '''
-            }
-        }
-
-        stage('Deploy to Ubuntu 24 LTS') {
-            steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'ubuntu_private_sshkey', keyFileVariable: 'MY_SSH_KEY', usernameVariable: 'username')]) {
-                    sh '''
-                    cd 02-single-server-deployment
-                    scp -i $MY_SSH_KEY -o StrictHostKeyChecking=no myapp.zip  ${username}@${SERVER_IP}:/home/rohith/
-                    ssh -i $MY_SSH_KEY -o StrictHostKeyChecking=no ${username}@${SERVER_IP} << EOF
-                    unzip -o /home/rohith/myapp.zip -d /home/rohith/app/
-                    source app/venv/bin/activate
-                    cd /home/rohith/app/
-                    pip install -r requirements.txt
-                    sudo systemctl restart flaskapp.service
-EOF
-                    '''
-                }
-            }
-        }
-       
-        
-       
-        
+        }        
+           
     }
 }
